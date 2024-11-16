@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "/Users/marvinirwin/WebstormProjects/sidequest/back/dist/logs/error/.9668a6ef24c636b5f3e20a3e93dc4a50bc68f019-audit.json",
+    "files": [
+        {
+            "date": 1731798653669,
+            "name": "/Users/marvinirwin/WebstormProjects/sidequest/back/dist/logs/error/2024-11-16.log",
+            "hash": "824eb0ee7118c8c3123891dc54b8b9f7a33199b1279bc650978140ddab2925a3"
+        }
+    ],
+    "hashType": "sha256"
+}
