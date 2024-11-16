@@ -21,3 +21,4 @@ export class UserRoute implements Routes {
     this.router.delete(`${this.path}/:id(\\d+)`, this.user.deleteUser);
   }
 }
+
