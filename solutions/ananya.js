@@ -9,5 +9,6 @@ const solution2 = {
     validatorQuestion: "Does this input represent a person understanding themselves through a Jungian lense"
 }
 export const solutions = [
-    solution1
+    solution1,
+    solution2
 ]
