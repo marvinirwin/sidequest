@@ -14,6 +14,7 @@ export class ChatRoute implements Routes {
   private anthropic: Anthropic;
   private upload = multer();
   private readonly SYSTEM_PROMPT = `You are a sarcastic, faustian concise bot who speaks in HTML. 
+
 Your responses should be wrapped in semantic HTML tags that convey meaning and structure.
 Use <p> for paragraphs, <em> for emphasis, <strong> for important points, and other appropriate tags.
 
@@ -22,6 +23,8 @@ If the user's response is not valid, ask clearly for clarification.
 Make sure to set is valid or not every response
 
 If you don't set valid to true, then fucking ASK for clarification.  You should never have a response that isn't valid yet doesn't ask for clarification.
+
+ASK FOR CLARIFICATION OR SET VALID TO TRUE
 
 Format your responses like:
 <div>
@@ -99,24 +102,36 @@ Format your responses like:
         model: 'claude-3-5-haiku-20241022',
         system:
           this.SYSTEM_PROMPT +
-          "\nSelect the most appropriate solution for the mortal's problem from the given options. Return only the index number (0-based) of the best matching solution.",
+          "\nSelect the most appropriate solution for the mortal's problem from the given options and set it as their esoteric solution.",
         messages: [
           {
             role: 'user',
             content: `User Problem: ${userProblem}\n\nAvailable Solutions:\n${solutions
               .map((s, i) => `${i}: ${s}`)
-              .join('\n')}\n\nWhich solution index best matches the user's problem?`,
+              .join('\n')}\n\nWhich solution best matches the user's problem? Use setDeepSolution to set it.`,
           },
         ],
-        tools: this.TOOLS,
+        tools: [
+          {
+            name: 'setSolution',
+            description: 'Set the selected solution for the user',
+            input_schema: {
+              type: 'object',
+              properties: {
+                deepSolution: {
+                  type: 'number',
+                  description: 'The index of the selected solution in the list',
+                },
+              },
+              required: ['deepSolution'],
+            },
+          },
+        ],
         max_tokens: 4096,
       });
 
-      const selectedSolutionIndex = parseInt(response.content[0].value.index);
-
-      res.json({
-        selectedSolutionIndex,
-        userProblem,
+      return res.json({
+        ...response.content,
       });
     } catch (error) {
       console.error('Solution selection error:', error);
@@ -157,25 +172,38 @@ Format your responses like:
 
       const response = await this.anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
-        system:
-          this.SYSTEM_PROMPT +
-          '\nYour task is to determine if the provided evidence demonstrates completion of the given task. Use the validateTaskCompletion tool to respond.',
+        system: this.SYSTEM_PROMPT + '\nYour task is to determine if the provided evidence demonstrates completion of the given task.',
         messages: [
           {
             role: 'user',
             content: `Task: ${task}\nEvidence: ${evidence}\nDoes this evidence demonstrate completion of the task?`,
           },
         ],
-        tools: this.TOOLS,
+        tools: [
+          {
+            name: 'validateTaskCompletion',
+            description: 'Validate if the evidence demonstrates task completion and explain why',
+            input_schema: {
+              type: 'object',
+              properties: {
+                isComplete: {
+                  type: 'boolean',
+                  description: 'Whether the evidence demonstrates task completion',
+                },
+                explanation: {
+                  type: 'string',
+                  description: 'Explanation of why the evidence is or is not sufficient',
+                },
+              },
+              required: ['isComplete', 'explanation'],
+            },
+          },
+        ],
         max_tokens: 4096,
       });
 
-      const isFulfilled = response.content[0].value.isComplete;
-
       res.json({
-        isFulfilled,
-        task,
-        evidence,
+        ...response.content,
       });
     } catch (error) {
       console.error('Task fulfillment error:', error);
@@ -201,7 +229,7 @@ Format your responses like:
       });
 
       // Validation check
-/*       const validationResponse = await this.anthropic.messages.create({
+      /*       const validationResponse = await this.anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
         system: `${this.SYSTEM_PROMPT} This is the current program state ${JSON.stringify(programState)}`,
         messages: [

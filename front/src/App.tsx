@@ -6,14 +6,13 @@ import {
 } from "./BigPrompt";
 import "./index.css";
 import { PromptChain } from "./PromptChain";
-import { Solution } from "./Solution";
-import { Verification } from "./Verification";
 import { useState, useEffect } from "react";
-import { solutions as ananyaSolutions } from "./solutions/ananya.ts";
+import { solutions as ananyaSolutions, Solution } from "./solutions/ananya.ts";
 import { solutions as aminSolutions } from "./solutions/amin.ts";
 import { solutions as nateSolutions } from "./solutions/nate.ts";
-const solutions = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
+const solutions: Solution[] = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
 import { Debug, useClearLocalStorageOn2, useDebugHotkey, useSetDebugContextKey } from "./DebugOverlay";
+import { SolutionScreen } from "./SolutionScreen.tsx";
 export interface Message {
   role: string;
   content: string;
@@ -42,6 +41,18 @@ const useLocalStorageState = <T,>(key: string, initialValue: T) => {
   const [state, setState] = useState<T>(initialValue);
   return [state, setState] as const;
 };
+const useLocalStorageStateReal = <T,>(key: string, initialValue: T) => {
+  const [state, setState] = useState<T>(() => {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initialValue;
+  });
+  
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [key, state]);
+
+  return [state, setState] as const;
+};
 
 function App() {
   const isDebugVisible = useDebugHotkey();
@@ -54,7 +65,7 @@ function App() {
   const [completedSteps, setCompletedSteps] = useLocalStorageState<string[]>("completedSteps", []);
   useSetDebugContextKey("Completed Steps", completedSteps);
   
-  const [selectedSolution, setSelectedSolution] = useLocalStorageState<number | null>("selectedSolution", null);
+  const [selectedSolution, setSelectedSolution] = useLocalStorageStateReal<Solution | null>("selectedSolution", null);
   useSetDebugContextKey("Selected Solution", selectedSolution);
   
   const [programState, setProgramState] = useLocalStorageState<ProgramState>("programState", {
@@ -101,12 +112,30 @@ function App() {
 
       setCompletedSteps((prev) => [...prev, currentStep]);
       const nextStep = getNextStep(currentStep);
-      debugger;
       if (nextStep) {
         setCurrentStep(nextStep);
         // This is the last step where we show them their solution
         if (nextStep === "esotericSolution") {
-          // Fetch the solution
+          try {
+            const response = await fetch('/api/chat/selectSolution', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userProblem: programState.userProblem,
+                solutions: solutions.map(s => s.shortDescription),
+              }),
+            });
+
+            const responseData = await response.json();
+            const selected = responseData.content.find((c: any) => c.type === 'tool_use');
+            debugger;
+            const deepSolution = selected?.tool_use.tool_call.input.deepSolution;
+            setSelectedSolution(solutions[deepSolution] as Solution);
+          } catch (error) {
+            console.error('Error selecting solution:', error);
+          }
         } else {
           // Keep prompting them
           const getNewPrompt = getPromptForStep(nextStep, programState);
@@ -135,14 +164,7 @@ function App() {
 
   if (selectedSolution !== null) {
     return (
-      <div className="flex min-h-screen w-full">
-        <div className="w-1/2 border-r border-gray-200">
-          <Solution solution={solutions[selectedSolution]} />
-        </div>
-        <div className="w-1/2">
-          <Verification goal={solutions[selectedSolution].validatorQuestion} />
-        </div>
-      </div>
+      <SolutionScreen solution={selectedSolution} />
     );
   }
 

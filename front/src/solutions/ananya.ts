@@ -1,4 +1,12 @@
-const solution1 = {
+export type Solution = {
+    title: string;
+    body: string;
+    shortDescription: string;
+    validatorQuestion: string;
+    tags: string[];
+}
+
+const solution1: Solution = {
     title: "Become more social by integrating your shadow",
     body: `<p>Instructions</p>Some Youtube embed</p>`,
     shortDescription: "A short description that allows the computer to pick this solution out of the others",
