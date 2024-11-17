@@ -1,5 +1,3 @@
- 
-
 interface ProgramState {
   userProblem: string;
   problemType: string;
@@ -17,27 +15,30 @@ export const promptChainSteps: Record<string, PromptStep> = {
   initialProblem: {
     prompt: () =>
       "What problem are you facing? We'll ask some more questions and get context on your life to provide you with the most impactful solution possible.",
-    validation: "Is this a clear and concise description of the problem the user is facing?",
+    validation:
+      "Is this a clear description of the problem the user is facing? Don't be too picky, I need the user to get to the next step in this conversation..",
     nextStep: "confirmProblem",
   },
 
   confirmProblem: {
     prompt: (state: ProgramState) =>
-      `Thanks for sharing. It seems like you're struggling with ${state.userProblem}. Does this feel correct?`,
+      `Is this what you want fixed? ${state.userProblem}`,
     validation:
-      "Has the user confirmed that this is a clear and concise description of the problem they are facing?",
+      "Has the user confirmed that this is a clear and concise description of the problem they are facing? Dont be too picky, I need the user to get to the next step in this conversation.",
     nextStep: "complexSelection",
   },
 
   complexSelection: {
     prompt: () =>
       `Your challenge likely relates to one of the six core complexes of the human experience. Reflect on these categories:
-1. Identity: Issues of self-esteem or authenticity.
-2. Control: Struggles with helplessness or power.
-3. Connection: Feelings of loneliness or relational challenges.
-4. Purpose: Dissatisfaction with direction or existential concerns.
-5. Safety: Fear or a sense of instability.
-6. Change: Anxiety or resistance around transitions.
+<ul>
+  <li>Identity: Issues of self-esteem or authenticity.</li>
+  <li>Control: Struggles with helplessness or power.</li>
+  <li>Connection: Feelings of loneliness or relational challenges.</li>
+  <li>Purpose: Dissatisfaction with direction or existential concerns.</li>
+  <li>Safety: Fear or a sense of instability.</li>
+  <li>Change: Anxiety or resistance around transitions.</li>
+</ul>
 
 Which of these resonates most with your current problem?`,
     validation:
@@ -46,11 +47,12 @@ Which of these resonates most with your current problem?`,
   },
 
   standardAdvice: {
-    prompt: (state: ProgramState) =>
-      `It seems your problem relates to the ${state.problemType} complex. Here are some steps to consider:
+    prompt: (state: ProgramState) => {
+      return `It seems your problem relates to the ${state.problemType} complex. Here are some steps to consider:
 ${state.standardSteps}
 
-But you already know all of this. You want better answers, don't you?`,
+But you already know all of this. You want better answers, don't you?`;
+    },
     validation: "Does the user want better answers?",
     nextStep: "esotericPact",
   },

@@ -19,18 +19,27 @@ export interface Message {
   content: string;
 }
 
+export interface ProgramState {
+  userProblem: string;
+  problemType: string;
+  standardSteps: string;
+  esotericWisdom: string;
+  esotericSolution: string;
+}
+
 const useLocalStorageState = <T,>(key: string, initialValue: T) => {
-  // Get stored value from localStorage or use initial value
-  const [state, setState] = useState<T>(() => {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : initialValue;
-  });
+  // Original implementation loaded from localStorage:
+  // const [state, setState] = useState<T>(() => {
+  //   const stored = localStorage.getItem(key);
+  //   return stored ? JSON.parse(stored) : initialValue;
+  // });
+  //
+  // useEffect(() => {
+  //   localStorage.setItem(key, JSON.stringify(state));
+  // }, [key, state]);
 
-  // Update localStorage when state changes
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]);
-
+  // Simplified version without localStorage:
+  const [state, setState] = useState<T>(initialValue);
   return [state, setState] as const;
 };
 
@@ -48,66 +57,62 @@ function App() {
   const [selectedSolution, setSelectedSolution] = useLocalStorageState<number | null>("selectedSolution", null);
   useSetDebugContextKey("Selected Solution", selectedSolution);
   
-  const [programState, setProgramState] = useLocalStorageState("programState", {
+  const [programState, setProgramState] = useLocalStorageState<ProgramState>("programState", {
     userProblem: "",
     problemType: "",
     standardSteps: "",
     esotericWisdom: "",
+    esotericSolution: "",
   });
   useSetDebugContextKey("Program State", programState);
 
-  const getPromptForStep = (step: string) => {
+  const getPromptForStep = (step: string, programState: ProgramState) => {
     const stepConfig = promptChainSteps[step];
     return stepConfig.prompt(programState);
   };
 
-  const initialPrompt = getPromptForStep(currentStep);
+  const initialPrompt = getPromptForStep(currentStep, programState);
   const validationPhrase = createValidationPhrase(currentStep);
 
   const [messages, setMessages] = useLocalStorageState<Message[]>("messages", [
     { role: 'system', content: `You are helping guide a conversation. Your goal is to achieve this outcome: ${validationPhrase}` },
     { role: 'assistant', content: initialPrompt }
   ]);
+
+/*   // Update messages when initialPrompt changes
+  useEffect(() => {
+    setMessages([
+      { role: 'system', content: `You are helping guide a conversation. Your goal is to achieve this outcome: ${validationPhrase}` },
+      { role: 'assistant', content: initialPrompt }
+    ]);
+  }, [initialPrompt, validationPhrase, setMessages]); */
+
   useSetDebugContextKey("Messages", messages);
   useClearLocalStorageOn2();
 
-  const handleValidated = async (messages: any[]) => {
+  const handleValidated = async (messages: any[], programState: ProgramState) => {
     const lastUserMessage = messages.filter((m) => m.role === "user").pop();
 
-    if (lastUserMessage) {
       setResponses((prev) => ({
         ...prev,
         [currentStep]: lastUserMessage.content,
       }));
 
-      if (currentStep === "initialProblem") {
-        setProgramState((prev) => ({
-          ...prev,
-          userProblem: lastUserMessage.content,
-        }));
-      }
 
       setCompletedSteps((prev) => [...prev, currentStep]);
-
       const nextStep = getNextStep(currentStep);
+      debugger;
       if (nextStep) {
         setCurrentStep(nextStep);
-      } else {
-        // When flow is complete, ask Claude to select best solution
-        const response = await fetch("/api/chat/selectSolution", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userProblem: programState.userProblem,
-            solutions: solutions.map((s) => s.shortDescription),
-          }),
-        });
-        const data = await response.json();
-        setSelectedSolution(data.selectedSolutionIndex);
+        // This is the last step where we show them their solution
+        if (nextStep === "esotericSolution") {
+          // Fetch the solution
+        } else {
+          // Keep prompting them
+          const getNewPrompt = getPromptForStep(nextStep, programState);
+          setMessages(messages => messages.concat([{role: "assistant", content: getNewPrompt}]));
+        }
       }
-    }
   };
 
   const getBackgroundClass = (step: string) => {
@@ -147,6 +152,8 @@ function App() {
       <div className="min-h-screen flex items-center justify-center w-full">
         <div className={`p-4 w-full ${getBackgroundClass(currentStep)}`}>
           <PromptChain
+            setProgramState={setProgramState}
+            programState={programState}
             setMessages={setMessages}
             initialPrompt={initialPrompt}
             validationPhrase={validationPhrase}
