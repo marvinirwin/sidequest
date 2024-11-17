@@ -399,10 +399,47 @@ Slowly walk back up the steps you came down from, feeling your energy and awaren
     tags: ['body', 'other', 'self']
 }
 const solution11 = {
-    title:`okokok`,
-    body: `okokok`,
-    shortDescription: `okokok`,
-    validatorQuestion: `Does this input depict xxxx`,
+    title:`Meeting the Inner Guide`,
+    body: `Induction
+Take deep breaths through your nose, and exhale through your mouth, feeling yourself becoming more and more relaxed with each breath. 
+Deepening:
+Visualize yourself standing at the top of a gentle staircase made of smooth, translucent crystals. There are ten steps leading down. With each step you descend, you feel yourself drifting deeper into a state of tranquility.
+Step 10: Take the first step down, feeling a wave of relaxation wash over you.
+Step 9: Deeper and deeper, your mind becoming calm and clear.
+Step 8: Muscles releasing, tensions fading away.
+Step 7: A peaceful sensation envelops you.
+Step 6: Halfway down, feeling safe and secure.
+Step 5: Deeper still, your breathing steady and slow.
+Step 4: Calmness permeates every cell of your body.
+Step 3: Almost there, sinking into serenity.
+Step 2: So deeply relaxed, so tranquil.
+Step 1: You step onto the soft ground, fully relaxed and open.
+Imagine a tranquil beach at sunset.
+Feel the sand beneath your feet.
+Hear the gentle waves lapping the shore.
+Smell the fresh, salty air.
+The Guide Appears:
+In the distance, you see a figure approaching. This is your Inner Guide—a representation of wisdom and connection.
+Interaction:
+Greet your Inner Guide warmly.
+Notice their appearance—perhaps they are a wise elder, a compassionate friend, or an animal spirit.
+Dialogue:
+Engage in conversation:
+Ask questions about relationships or feelings of loneliness.
+Listen attentively to the guidance offered.
+Receiving Wisdom:
+Allow the insights to resonate within you.
+Feel a sense of understanding and comfort.
+Express Gratitude:
+Thank your Inner Guide for their wisdom.
+Know that you can call upon them whenever you need support.
+
+
+Return
+Slowly walk back up the steps, feeling your energy and awareness coming back to your body. Step onto the landing feeling fully present, and ready to hold these insights with you.
+`,
+    shortDescription: `A guided visualization to connect with your Inner Guide on a tranquil beach, seeking wisdom, understanding, and support for relationships and feelings of loneliness.`,
+    validatorQuestion: `Does this input depict a personal experience with one's inner guide and their reflections on this interactions?`,
     tags: ['body', 'other', 'self']
 }
 
