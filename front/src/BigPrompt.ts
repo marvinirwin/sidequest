@@ -1,6 +1,9 @@
 interface ProgramState {
   userProblem: string;
+  basicProblem: string;
+  basicSolution: string;
   problemType: string;
+
   standardSteps: string;
   esotericWisdom: string;
 }
@@ -14,7 +17,7 @@ interface PromptStep {
 export const promptChainSteps: Record<string, PromptStep> = {
   initialProblem: {
     prompt: () =>
-      "What problem are you facing? We'll ask some more questions and get context on your life to provide you with the most impactful solution possible.",
+      "What spiritual challenge are you facing?  <br>We'll ask you some more question and get context on your life to provide you with the most <bold>impactful</bold> solution as possible",
     validation:
       "Is this a clear description of the problem the user is facing? Don't be too picky, I need the user to get to the next step in this conversation..",
     nextStep: "confirmProblem",
@@ -22,35 +25,17 @@ export const promptChainSteps: Record<string, PromptStep> = {
 
   confirmProblem: {
     prompt: (state: ProgramState) =>
-      `Is this what you want fixed? ${state.userProblem}`,
+      `Thanks for sharing.  Seems like you're struggling with ${state.userProblem}?<br> Does this feel correct?`,
     validation:
       "Has the user confirmed that this is a clear and concise description of the problem they are facing? Dont be too picky, I need the user to get to the next step in this conversation.",
     nextStep: "complexSelection",
   },
 
-  complexSelection: {
-    prompt: () =>
-      `Your challenge likely relates to one of the six core complexes of the human experience. Reflect on these categories:
-<ul>
-  <li>Identity: Issues of self-esteem or authenticity.</li>
-  <li>Control: Struggles with helplessness or power.</li>
-  <li>Connection: Feelings of loneliness or relational challenges.</li>
-  <li>Purpose: Dissatisfaction with direction or existential concerns.</li>
-  <li>Safety: Fear or a sense of instability.</li>
-  <li>Change: Anxiety or resistance around transitions.</li>
-</ul>
-
-Which of these resonates most with your current problem?`,
-    validation:
-      "Has the user identified the core complex most relevant to their problem?",
-    nextStep: "standardAdvice",
-  },
-
   standardAdvice: {
     prompt: (state: ProgramState) => {
-      return `It seems your problem relates to the ${state.problemType} complex. Here are some steps to consider:
-${state.standardSteps}
-
+      return `It seems your problem relates to the ${state.basicProblem} complex. Here are some steps to consider:
+${state.basicSolution}
+<br>
 But you already know all of this. You want better answers, don't you?`;
     },
     validation: "Does the user want better answers?",
@@ -59,17 +44,13 @@ But you already know all of this. You want better answers, don't you?`;
 
   esotericPact: {
     prompt: () =>
-      `To dive deeper, you must make a pact. You must confront this complex head-on, leaving behind the parts of you that are entangled in its grip. The solutions are not easy and may transform you permanently.
+      `But first, you have to make a pact.
+<br>
+    You must destroy the past self that faces this problem, and forge a new identity that is free of the encumbrance.  If you do not fulfill the pact, you must face the true consequences of remaining the way you are.
+    <br>
+    The all seeing eye categorizes all problems
 
-The six core complexes have esoteric dimensions:
-- Identity: Embrace the profound question of "Who am I?" through ancient philosophical or psychological insights.
-- Control: Explore transformative strategies to reclaim agency or relinquish toxic control.
-- Connection: Learn unconventional ways to build meaningful bonds or master social magnetism.
-- Purpose: Delve into existential wisdom, exploring the meaning of your actions and existence.
-- Safety: Understand and navigate the roots of fear, drawing from hidden sources of resilience.
-- Change: Discover powerful rituals and practices for embracing transformation.
-
-Which dimension are you willing to explore?`,
+`,
     validation:
       "Has the user selected the esoteric dimension they wish to explore?",
     nextStep: "esotericSolution",
