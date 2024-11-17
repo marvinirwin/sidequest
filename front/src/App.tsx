@@ -13,6 +13,7 @@ import { solutions as nateSolutions } from "./solutions/nate.ts";
 const solutions: Solution[] = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
 import { Debug, useClearLocalStorageOn2, useDebugHotkey, useSetDebugContextKey } from "./DebugOverlay";
 import { SolutionScreen } from "./SolutionScreen.tsx";
+import { LandingPage } from "./LandingPage.tsx";
 export interface Message {
   role: string;
   content: string;
@@ -55,6 +56,7 @@ const useLocalStorageStateReal = <T,>(key: string, initialValue: T) => {
 };
 
 function App() {
+  const [started, setStarted] = useState(false);
   const isDebugVisible = useDebugHotkey();
   const [currentStep, setCurrentStep] = useLocalStorageState("currentStep", "initialProblem");
   useSetDebugContextKey("Current Step", currentStep);
@@ -166,6 +168,10 @@ function App() {
     return (
       <SolutionScreen solution={selectedSolution} />
     );
+  }
+
+  if (!started) {
+    return <LandingPage setStarted={setStarted}/>
   }
 
   return (
