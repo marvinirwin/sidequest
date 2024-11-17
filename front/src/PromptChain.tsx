@@ -1,22 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { Message } from './App';
 
 interface PromptChainProps {
   initialPrompt: string;
   validationPhrase: string;
   onValidated?: (messages: Message[]) => void;
   showLatestOnly?: boolean;
+  messages: Message[];
+  setMessages: (messages: Message[]) => void;
 }
 
-interface Message {
-  role: string;
-  content: string;
-}
 
-export const PromptChain: React.FC<PromptChainProps> = ({ initialPrompt, validationPhrase, onValidated, showLatestOnly = false }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'system', content: `You are helping guide a conversation. Your goal is to achieve this outcome: ${validationPhrase}` },
-    { role: 'assistant', content: initialPrompt }
-  ]);
+export const PromptChain: React.FC<PromptChainProps> = ({ initialPrompt, validationPhrase, onValidated, showLatestOnly = false, messages, setMessages }) => {
   const [userInput, setUserInput] = useState('');
   const [isComplete, setIsComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

@@ -1,6 +1,5 @@
 import "./App.css";
 import {
-  BigPrompt,
   promptChainSteps,
   createValidationPhrase,
   getNextStep,
@@ -9,30 +8,67 @@ import "./index.css";
 import { PromptChain } from "./PromptChain";
 import { Solution } from "./Solution";
 import { Verification } from "./Verification";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { solutions as ananyaSolutions } from "./solutions/ananya.ts";
 import { solutions as aminSolutions } from "./solutions/amin.ts";
 import { solutions as nateSolutions } from "./solutions/nate.ts";
 const solutions = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
 import { Debug, useDebugHotkey, useSetDebugContextKey } from "./DebugOverlay";
+export interface Message {
+  role: string;
+  content: string;
+}
+
+const useLocalStorageState = <T,>(key: string, initialValue: T) => {
+  // Get stored value from localStorage or use initial value
+  const [state, setState] = useState<T>(() => {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initialValue;
+  });
+
+  // Update localStorage when state changes
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [key, state]);
+
+  return [state, setState] as const;
+};
 
 function App() {
   const isDebugVisible = useDebugHotkey();
-  const [currentStep, setCurrentStep] = useState("initialProblem");
+  const [currentStep, setCurrentStep] = useLocalStorageState("currentStep", "initialProblem");
   useSetDebugContextKey("Current Step", currentStep);
-  const [responses, setResponses] = useState<Record<string, string>>({});
+  
+  const [responses, setResponses] = useLocalStorageState<Record<string, string>>("responses", {});
   useSetDebugContextKey("Responses", responses);
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  
+  const [completedSteps, setCompletedSteps] = useLocalStorageState<string[]>("completedSteps", []);
   useSetDebugContextKey("Completed Steps", completedSteps);
-  const [selectedSolution, setSelectedSolution] = useState<number | null>(null);
+  
+  const [selectedSolution, setSelectedSolution] = useLocalStorageState<number | null>("selectedSolution", null);
   useSetDebugContextKey("Selected Solution", selectedSolution);
-  const [programState, setProgramState] = useState({
+  
+  const [programState, setProgramState] = useLocalStorageState("programState", {
     userProblem: "",
     problemType: "",
     standardSteps: "",
     esotericWisdom: "",
   });
   useSetDebugContextKey("Program State", programState);
+
+  const getPromptForStep = (step: string) => {
+    const stepConfig = promptChainSteps[step];
+    return stepConfig.prompt(programState);
+  };
+
+  const initialPrompt = getPromptForStep(currentStep);
+  const validationPhrase = createValidationPhrase(currentStep);
+
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'system', content: `You are helping guide a conversation. Your goal is to achieve this outcome: ${validationPhrase}` },
+    { role: 'assistant', content: initialPrompt }
+  ]);
+
 
   const handleValidated = async (messages: any[]) => {
     const lastUserMessage = messages.filter((m) => m.role === "user").pop();
@@ -90,10 +126,6 @@ function App() {
     }
   };
 
-  const getPromptForStep = (step: string) => {
-    const stepConfig = promptChainSteps[step];
-    return stepConfig.prompt(programState);
-  };
 
   if (selectedSolution !== null) {
     return (
@@ -114,10 +146,12 @@ function App() {
       <div className="min-h-screen flex items-center justify-center w-full">
         <div className={`p-4 w-full ${getBackgroundClass(currentStep)}`}>
           <PromptChain
-            initialPrompt={getPromptForStep(currentStep)}
-            validationPhrase={createValidationPhrase(currentStep)}
+            setMessages={setMessages}
+            initialPrompt={initialPrompt}
+            validationPhrase={validationPhrase}
             onValidated={handleValidated}
             showLatestOnly={true}
+            messages={messages}
           />
         </div>
       </div>
