@@ -6,7 +6,10 @@ interface CompletionBox {
   isCompleted: boolean;
   evidence: {
     text: string;
-    images: string[];
+    images: Array<{
+      data: string;
+      mediaType: string;
+    }>;
   };
 }
 
@@ -24,28 +27,60 @@ export function SolutionScreen({ solution }: SolutionScreenProps) {
   const [evidenceText, setEvidenceText] = useState('');
   const [validationMessage, setValidationMessage] = useState('');
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = 500;
+          canvas.height = 500;
+
+          if (ctx) {
+            // Maintain aspect ratio while fitting within 500x500
+            const scale = Math.min(500 / img.width, 500 / img.height);
+            const width = img.width * scale;
+            const height = img.height * scale;
+            const x = (500 - width) / 2;
+            const y = (500 - height) / 2;
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 500, 500);
+            ctx.drawImage(img, x, y, width, height);
+          }
+
+          const base64Data = canvas.toDataURL(file.type).split(',')[1];
+          resolve(base64Data);
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || selectedBox === null) return;
 
-    const formData = new FormData();
-    formData.append('image', files[0]);
-
-    try {
-      const response = await fetch('/api/chat/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-
-      setCompletionBoxes(boxes => boxes.map(box => 
-        box.id === selectedBox 
-          ? { ...box, evidence: { ...box.evidence, images: [...box.evidence.images, data.imageUrl] } }
-          : box
-      ));
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
+    const file = files[0];
+    const compressedBase64 = await compressImage(file);
+    
+    setCompletionBoxes(boxes => boxes.map(box => 
+      box.id === selectedBox 
+        ? { 
+            ...box, 
+            evidence: { 
+              ...box.evidence, 
+              images: [...box.evidence.images, {
+                data: compressedBase64,
+                mediaType: file.type
+              }]
+            } 
+          }
+        : box
+    ));
   };
 
   const handleSubmitEvidence = async () => {
@@ -55,21 +90,44 @@ export function SolutionScreen({ solution }: SolutionScreenProps) {
     if (!currentBox) return;
 
     try {
+      const content = [
+        ...currentBox.evidence.images.map(img => ({
+          type: "image", 
+          source: {
+            type: "base64",
+            media_type: img.mediaType,
+            data: img.data
+          }
+        })),
+        {
+          type: "text",
+          text: evidenceText
+        }
+      ];
+
+      debugger;
       const response = await fetch('/api/chat/isFulfilled', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          task: solution.validatorQuestion,
-          evidence: `Text evidence: ${evidenceText}\nImage evidence: ${currentBox.evidence.images.join(', ')}`
+          task: solution.shortDescription,
+          validator: solution.validatorQuestion,
+          messages: [
+            {
+                role: "user",
+                content
+            }
+          ]
         })
       });
 
-      const data = await response.json();
-      const toolResponse = data.content.find((c: any) => c.type === 'tool_use');
+      const data = Object.values(await response.json());
+      debugger;
+      const toolResponse = data.find((c: any) => c.type === 'tool_use');
       
-      if (toolResponse?.tool_use?.tool_call?.input.isComplete) {
+      if (toolResponse?.input.isComplete) {
         setCompletionBoxes(boxes => boxes.map(box => 
           box.id === selectedBox 
             ? { ...box, isCompleted: true, evidence: { ...box.evidence, text: evidenceText } }
@@ -79,7 +137,7 @@ export function SolutionScreen({ solution }: SolutionScreenProps) {
         setSelectedBox(null);
         setEvidenceText('');
       } else {
-        setValidationMessage(toolResponse?.tool_use?.tool_call?.input.explanation || 'Please try again with better evidence.');
+        setValidationMessage(toolResponse?.input.explanation || 'Please try again with better evidence.');
       }
     } catch (error) {
       console.error('Error validating evidence:', error);
@@ -128,7 +186,7 @@ export function SolutionScreen({ solution }: SolutionScreenProps) {
                   {box.evidence.images.length > 0 && (
                     <div className="flex gap-2 flex-wrap">
                       {box.evidence.images.map((img, i) => (
-                        <img key={i} src={img} alt={`Evidence ${i + 1}`} className="w-20 h-20 object-cover" />
+                        <img key={i} src={`data:${img.mediaType};base64,${img.data}`} alt={`Evidence ${i + 1}`} className="w-20 h-20 object-cover" />
                       ))}
                     </div>
                   )}
@@ -150,4 +208,3 @@ export function SolutionScreen({ solution }: SolutionScreenProps) {
     </div>
   );
 }
-

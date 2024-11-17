@@ -164,21 +164,12 @@ Format your responses like:
 
   private async handleTaskFulfillment(req, res) {
     try {
-      const { task, evidence } = req.body;
-
-      if (!task || !evidence) {
-        return res.status(400).json({ error: 'Task and evidence are required' });
-      }
+      const { task, validator, messages } = req.body;
 
       const response = await this.anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
-        system: this.SYSTEM_PROMPT + '\nYour task is to determine if the provided evidence demonstrates completion of the given task.',
-        messages: [
-          {
-            role: 'user',
-            content: `Task: ${task}\nEvidence: ${evidence}\nDoes this evidence demonstrate completion of the task?`,
-          },
-        ],
+        system: `\nYour task is to determine if the provided evidence demonstrates completion of this task ${task} with by answering this validation question: ${validator}`,
+        messages: [...messages],
         tools: [
           {
             name: 'validateTaskCompletion',
