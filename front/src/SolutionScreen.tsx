@@ -168,7 +168,7 @@ export function SolutionScreen({ solution }: SolutionScreenProps) {
                 ${selectedBox === box.id ? 'ring-2 ring-blue-500' : ''}`}
               onClick={() => !box.isCompleted && setSelectedBox(box.id)}
             >
-              <h3 className="font-medium">Step {box.id}</h3>
+              <h3 className="font-medium">Proof of Completion {box.id}</h3>
               {selectedBox === box.id && (
                 <div className="mt-4 space-y-4">
                   <textarea

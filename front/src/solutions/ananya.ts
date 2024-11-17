@@ -22,7 +22,7 @@ const solution2 = {
     tags: ['body', 'other', 'self']
 }
 
-const solution3 Solution = {
+const solution3  = {
     title: "The Labyrinth of Choices",
     body: `Induction
 Take deep breaths through your nose, and exhale through your mouth, feeling yourself becoming more and more relaxed with each breath. 
