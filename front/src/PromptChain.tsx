@@ -112,10 +112,10 @@ export const PromptChain: React.FC<PromptChainProps> = ({ initialPrompt, validat
               <button
                 type="submit"
                 disabled={isComplete || isLoading}
-                className="bg-transparent text-white border-2 border-white px-5 py-3 flex items-center justify-center hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-transparent"
+                className="bg-transparent flex items-center justify-center hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-transparent"
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-transparent"></div>
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
