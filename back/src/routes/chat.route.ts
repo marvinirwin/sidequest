@@ -219,25 +219,10 @@ Format your responses like:
         };
       });
 
-      // Validation check
-      /*       const validationResponse = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        system: `${this.SYSTEM_PROMPT} This is the current program state ${JSON.stringify(programState)}`,
-        messages: [
-          ...formattedMessages,
-          {
-            role: 'user',
-            content: `Based on the mortal's last response, determine if the following criteria is met: ${validationPhrase}. Use the validateResponse tool to respond.`,
-          },
-        ],
-        tools: this.TOOLS,
-        max_tokens: 4096,
-      }); */
-
       // Get AI's response
       const message = await this.anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
-        system: this.SYSTEM_PROMPT,
+        system: this.SYSTEM_PROMPT + ` This is the validation phrase: ${validationPhrase}`,
         messages: formattedMessages,
         tools: this.TOOLS,
         max_tokens: 4096,

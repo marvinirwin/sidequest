@@ -68,8 +68,8 @@ function App() {
   const [completedSteps, setCompletedSteps] = useLocalStorageState<string[]>("completedSteps", []);
   useSetDebugContextKey("Completed Steps", completedSteps);
   
-  const [selectedSolution, setSelectedSolution] = useLocalStorageStateReal<Solution | null>("selectedSolution", null);
-  useSetDebugContextKey("Selected Solution", selectedSolution);
+  const [selectedSolutionIndex, setSelectedSolutionIndex] = useLocalStorageStateReal<number | null>("selectedSolutionIndex", null);
+  useSetDebugContextKey("Selected Solution", selectedSolutionIndex);
   
   const [programState, setProgramState] = useLocalStorageState<ProgramState>("programState", {
     userProblem: "",
@@ -80,6 +80,7 @@ function App() {
   });
   useSetDebugContextKey("Program State", programState);
 
+  const selectedSolution = selectedSolutionIndex !== null ? solutions[selectedSolutionIndex] : null;
   const getPromptForStep = (step: string, programState: ProgramState) => {
     const stepConfig = promptChainSteps[step];
     return stepConfig.prompt(programState);
@@ -135,7 +136,7 @@ function App() {
             debugger;
             const selected = responseData.find((c: any) => c.type === 'tool_use');
             const deepSolution = selected?.input.deepSolution;
-            setSelectedSolution(solutions[deepSolution] as Solution);
+            setSelectedSolutionIndex(deepSolution);
           } catch (error) {
             console.error('Error selecting solution:', error);
           }
@@ -167,7 +168,7 @@ function App() {
 
   if (selectedSolution !== null) {
     return (
-      <SolutionScreen solution={selectedSolution} />
+      <SolutionScreen solutionIndex={selectedSolutionIndex} />
     );
   }
 

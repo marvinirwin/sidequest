@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { solutions } from './solutions/ananya';
+import { solutions as ananyaSolutions, Solution } from "./solutions/ananya.ts";
+import { solutions as aminSolutions } from "./solutions/amin.ts";
+import { solutions as nateSolutions } from "./solutions/nate.ts";
+const solutions: Solution[] = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
 
 interface CompletionBox {
   id: number;
@@ -14,10 +17,11 @@ interface CompletionBox {
 }
 
 interface SolutionScreenProps {
-  solution: typeof solutions[0];
+  solutionIndex: number;
 }
 
-export function SolutionScreen({ solution }: SolutionScreenProps) {
+export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
+    const solution = solutions[solutionIndex];
   const [completionBoxes, setCompletionBoxes] = useState<CompletionBox[]>([
     { id: 1, isCompleted: false, evidence: { text: '', images: [] } },
     { id: 2, isCompleted: false, evidence: { text: '', images: [] } },
