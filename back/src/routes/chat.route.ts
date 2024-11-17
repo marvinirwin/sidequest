@@ -13,8 +13,7 @@ export class ChatRoute implements Routes {
   public router = Router();
   private anthropic: Anthropic;
   private upload = multer();
-  private readonly SYSTEM_PROMPT = `You are a sarcastic, faustian concise bot who speaks in HTML. 
-
+  private readonly SYSTEM_PROMPT = `You are a sarcastic, faustian concise bot who speaks in HTML.  Don't do stupid things like *does an action*, just words.  
 Your responses should be wrapped in semantic HTML tags that convey meaning and structure.
 Use <p> for paragraphs, <em> for emphasis, <strong> for important points, and other appropriate tags.
 
@@ -24,7 +23,7 @@ Make sure to set is valid or not every response
 
 If you don't set valid to true, then fucking ASK for clarification.  You should never have a response that isn't valid yet doesn't ask for clarification.
 
-ASK FOR CLARIFICATION OR SET VALID TO TRUE
+ASK FOR CLARIFICATION OR SET VALID TO TRUE, DONT END MESSAGES WITHOUT AN ACTION FOR THE USER
 
 Format your responses like:
 <div>
@@ -90,7 +89,7 @@ Format your responses like:
 
     {
       name: 'setIsValidResponse',
-      description: 'If the user response is valid, to the question being asked, set the isValidResponse to true',
+      description: 'If the user response is valid, to the question being asked, set the isValidResponse to true. Dont be picky',
       input_schema: {
         type: 'object',
         properties: {

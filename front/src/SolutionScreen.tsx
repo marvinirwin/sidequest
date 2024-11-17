@@ -2,6 +2,8 @@ import { useState } from "react";
 import { solutions as ananyaSolutions, Solution } from "./solutions/ananya.ts";
 import { solutions as aminSolutions } from "./solutions/amin.ts";
 import { solutions as nateSolutions } from "./solutions/nate.ts";
+import { PactLossComponent } from "./PactLossComponent.tsx";
+import { PactWinComponent } from "./PactWinComponent.tsx";
 
 const solutions: Solution[] = [
   ...ananyaSolutions,
@@ -9,16 +11,12 @@ const solutions: Solution[] = [
   ...nateSolutions,
 ];
 
-interface CompletionBox {
-  id: number;
-  isCompleted: boolean;
-  evidence: {
-    text: string;
-    images: Array<{
-      data: string;
-      mediaType: string;
-    }>;
-  };
+interface Evidence {
+  text: string;
+  images: Array<{
+    data: string;
+    mediaType: string;
+  }>;
 }
 
 interface SolutionScreenProps {
@@ -27,12 +25,11 @@ interface SolutionScreenProps {
 
 export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
   const solution = solutions[solutionIndex];
-  const [completionBoxes, setCompletionBoxes] = useState<CompletionBox[]>([
-    { id: 1, isCompleted: false, evidence: { text: "", images: [] } },
-  ]);
-  const [selectedBox, setSelectedBox] = useState<number | null>(null);
+  const [evidence, setEvidence] = useState<Evidence>({ text: "", images: [] });
   const [evidenceText, setEvidenceText] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
 
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -46,7 +43,6 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
           canvas.height = 500;
 
           if (ctx) {
-            // Maintain aspect ratio while fitting within 500x500
             const scale = Math.min(500 / img.width, 500 / img.height);
             const width = img.width * scale;
             const height = img.height * scale;
@@ -67,45 +63,29 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
     });
   };
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || selectedBox === null) return;
+    if (!files) return;
 
     const file = files[0];
     const compressedBase64 = await compressImage(file);
 
-    setCompletionBoxes((boxes) =>
-      boxes.map((box) =>
-        box.id === selectedBox
-          ? {
-              ...box,
-              evidence: {
-                ...box.evidence,
-                images: [
-                  ...box.evidence.images,
-                  {
-                    data: compressedBase64,
-                    mediaType: file.type,
-                  },
-                ],
-              },
-            }
-          : box
-      )
-    );
+    setEvidence({
+      ...evidence,
+      images: [
+        ...evidence.images,
+        {
+          data: compressedBase64,
+          mediaType: file.type,
+        },
+      ],
+    });
   };
 
   const handleSubmitEvidence = async () => {
-    if (selectedBox === null) return;
-
-    const currentBox = completionBoxes.find((box) => box.id === selectedBox);
-    if (!currentBox) return;
-
     try {
       const content = [
-        ...currentBox.evidence.images.map((img) => ({
+        ...evidence.images.map((img) => ({
           type: "image",
           source: {
             type: "base64",
@@ -119,7 +99,6 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
         },
       ];
 
-      debugger;
       const response = await fetch("/api/chat/isFulfilled", {
         method: "POST",
         headers: {
@@ -138,37 +117,26 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
       });
 
       const data = Object.values(await response.json());
-      debugger;
       const toolResponse = data.find((c: any) => c.type === "tool_use");
 
       if (toolResponse?.input.isComplete) {
-        setCompletionBoxes((boxes) =>
-          boxes.map((box) =>
-            box.id === selectedBox
-              ? {
-                  ...box,
-                  isCompleted: true,
-                  evidence: { ...box.evidence, text: evidenceText },
-                }
-              : box
-          )
-        );
-        setValidationMessage("Task completed successfully!");
-        setSelectedBox(null);
-        setEvidenceText("");
+        setSucceeded(true);
+        setIsComplete(true);
+        localStorage.clear();
       } else {
-        setValidationMessage(
-          toolResponse?.input.explanation ||
-            "Please try again with better evidence."
-        );
+        setSucceeded(false);
+        setIsComplete(true);
+        localStorage.clear();
       }
     } catch (error) {
       console.error("Error validating evidence:", error);
-      setValidationMessage(
-        "Error validating your submission. Please try again."
-      );
+      setValidationMessage("Error validating your submission. Please try again.");
     }
   };
+
+  if (isComplete) {
+    return succeeded ? <PactWinComponent /> : <PactLossComponent />;
+  }
 
   return (
     <div className="flex h-screen">
@@ -181,67 +149,43 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
       </div>
 
       <div className="w-1/2 p-8">
-        <h2 className="text-2xl font-semibold mb-6">Track Your Progress</h2>
+        <h2 className="text-2xl font-semibold mb-6">Prove Your Completion</h2>
         {validationMessage && (
-          <div
-            className={`p-4 mb-4 rounded ${
-              validationMessage.includes("successfully")
-                ? "bg-green-100"
-                : "bg-red-100"
-            }`}
-          >
-            {validationMessage}
-          </div>
+          <div className="p-4 mb-4 rounded bg-red-100">{validationMessage}</div>
         )}
         <div className="space-y-4">
-          {completionBoxes.map((box) => (
-            <div
-              key={box.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-colors
-                ${box.isCompleted ? "bg-green-100" : "hover:bg-gray-50"}
-                ${selectedBox === box.id ? "ring-2 ring-blue-500" : ""}`}
-              onClick={() => !box.isCompleted && setSelectedBox(box.id)}
+          <div className="p-4 border rounded-lg">
+            <textarea
+              className="w-full p-2 border rounded"
+              value={evidenceText}
+              onChange={(e) => setEvidenceText(e.target.value)}
+              placeholder="Describe how you completed this task..."
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="block w-full mt-4"
+            />
+            {evidence.images.length > 0 && (
+              <div className="flex gap-2 flex-wrap mt-4">
+                {evidence.images.map((img, i) => (
+                  <img
+                    key={i}
+                    src={`data:${img.mediaType};base64,${img.data}`}
+                    alt={`Evidence ${i + 1}`}
+                    className="w-20 h-20 object-cover"
+                  />
+                ))}
+              </div>
+            )}
+            <button
+              onClick={handleSubmitEvidence}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-4"
             >
-              <h3 className="font-medium">Proof of Completion {box.id}</h3>
-              {selectedBox === box.id && (
-                <div className="mt-4 space-y-4">
-                  <textarea
-                    className="w-full p-2 border rounded"
-                    value={evidenceText}
-                    onChange={(e) => setEvidenceText(e.target.value)}
-                    placeholder="Describe how you completed this step..."
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="block w-full"
-                  />
-                  {box.evidence.images.length > 0 && (
-                    <div className="flex gap-2 flex-wrap">
-                      {box.evidence.images.map((img, i) => (
-                        <img
-                          key={i}
-                          src={`data:${img.mediaType};base64,${img.data}`}
-                          alt={`Evidence ${i + 1}`}
-                          className="w-20 h-20 object-cover"
-                        />
-                      ))}
-                    </div>
-                  )}
-                  <button
-                    onClick={handleSubmitEvidence}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Submit Evidence
-                  </button>
-                </div>
-              )}
-              {box.isCompleted && (
-                <div className="mt-2 text-green-600">✓ Completed</div>
-              )}
-            </div>
-          ))}
+              Submit Evidence
+            </button>
+          </div>
         </div>
       </div>
     </div>
