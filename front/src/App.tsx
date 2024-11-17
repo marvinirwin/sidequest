@@ -42,6 +42,7 @@ const useLocalStorageState = <T,>(key: string, initialValue: T) => {
   const [state, setState] = useState<T>(initialValue);
   return [state, setState] as const;
 };
+
 const useLocalStorageStateReal = <T,>(key: string, initialValue: T) => {
   const [state, setState] = useState<T>(() => {
     const stored = localStorage.getItem(key);
@@ -130,10 +131,10 @@ function App() {
               }),
             });
 
-            const responseData = await response.json();
-            const selected = responseData.content.find((c: any) => c.type === 'tool_use');
+            const responseData = Object.values(await response.json());
             debugger;
-            const deepSolution = selected?.tool_use.tool_call.input.deepSolution;
+            const selected = responseData.find((c: any) => c.type === 'tool_use');
+            const deepSolution = selected?.input.deepSolution;
             setSelectedSolution(solutions[deepSolution] as Solution);
           } catch (error) {
             console.error('Error selecting solution:', error);
