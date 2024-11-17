@@ -3,6 +3,7 @@ import {
   promptChainSteps,
   createValidationPhrase,
   getNextStep,
+  ProgramState,
 } from "./BigPrompt";
 import "./index.css";
 import { PromptChain } from "./PromptChain";
@@ -10,7 +11,6 @@ import { useState, useEffect } from "react";
 import { solutions as ananyaSolutions, Solution } from "./solutions/ananya.ts";
 import { solutions as aminSolutions } from "./solutions/amin.ts";
 import { solutions as nateSolutions } from "./solutions/nate.ts";
-const solutions: Solution[] = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
 import { Debug, useClearLocalStorageOn2, useDebugHotkey, useSetDebugContextKey } from "./DebugOverlay";
 import { SolutionScreen } from "./SolutionScreen.tsx";
 import { LandingPage } from "./LandingPage.tsx";
@@ -19,13 +19,8 @@ export interface Message {
   content: string;
 }
 
-export interface ProgramState {
-  userProblem: string;
-  problemType: string;
-  standardSteps: string;
-  esotericWisdom: string;
-  esotericSolution: string;
-}
+const solutions: Solution[] = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
+
 
 const useLocalStorageState = <T,>(key: string, initialValue: T) => {
   // Original implementation loaded from localStorage:
@@ -73,10 +68,9 @@ function App() {
   
   const [programState, setProgramState] = useLocalStorageState<ProgramState>("programState", {
     userProblem: "",
+    basicProblem: "",
+    basicSolution: "",
     problemType: "",
-    standardSteps: "",
-    esotericWisdom: "",
-    esotericSolution: "",
   });
   useSetDebugContextKey("Program State", programState);
 
@@ -115,6 +109,7 @@ function App() {
 
 
       setCompletedSteps((prev) => [...prev, currentStep]);
+      debugger;
       const nextStep = getNextStep(currentStep);
       if (nextStep) {
         setCurrentStep(nextStep);
@@ -133,7 +128,6 @@ function App() {
             });
 
             const responseData = Object.values(await response.json());
-            debugger;
             const selected = responseData.find((c: any) => c.type === 'tool_use');
             const deepSolution = selected?.input.deepSolution;
             setSelectedSolutionIndex(deepSolution);

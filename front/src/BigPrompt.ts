@@ -1,11 +1,10 @@
-interface ProgramState {
+export interface ProgramState {
   userProblem: string;
   basicProblem: string;
   basicSolution: string;
   problemType: string;
 
-  standardSteps: string;
-  esotericWisdom: string;
+  agreedToPact?: boolean;
 }
 
 interface PromptStep {
@@ -25,15 +24,18 @@ export const promptChainSteps: Record<string, PromptStep> = {
 
   confirmProblem: {
     prompt: (state: ProgramState) =>
-      `Thanks for sharing.  Seems like you're struggling with ${state.userProblem}?<br> Does this feel correct?`,
+      {
+        console.log(state)
+              return `Thanks for sharing.  Seems like you're struggling with ${state.userProblem}?<br> Does this feel correct?`;
+          },
     validation:
       "Has the user confirmed that this is a clear and concise description of the problem they are facing? Dont be too picky, I need the user to get to the next step in this conversation.",
-    nextStep: "complexSelection",
+    nextStep: "standardAdvice",
   },
 
   standardAdvice: {
     prompt: (state: ProgramState) => {
-      return `It seems your problem relates to the ${state.basicProblem} complex. Here are some steps to consider:
+      return `It seems your problem relates to ${state.basicProblem}. Here are some steps to consider:
 ${state.basicSolution}
 <br>
 But you already know all of this. You want better answers, don't you?`;
@@ -58,8 +60,8 @@ But you already know all of this. You want better answers, don't you?`;
 
   esotericSolution: {
     prompt: (state: ProgramState) =>
-      `Drawing from the deep well of esoteric wisdom for the ${state.problemType} complex, here is your solution:
-${state.esotericWisdom}`,
+      `Drawing from the deep well of esoteric wisdom for the ${state.problemType} complex,
+`,
     validation: "",
   },
 };

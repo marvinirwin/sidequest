@@ -79,26 +79,47 @@ export const PromptChain: React.FC<PromptChainProps> = ({
           setMessages([...updatedMessages]);
         }
         if (data.type === "tool_use") {
-          if (data.name === "setProblem" && data.input.problem) {
-            newProgramState = {
-              ...programState,
-              userProblem: data.input.problem,
-            };
-            setProgramState(newProgramState);
-          } else if (
-            data.name === "setDeepSolution" &&
-            data.input.deepSolution
-          ) {
-            newProgramState = {
-              ...newProgramState,
-              esotericSolution: data.input.esotericSolution,
-            };
-            setProgramState(newProgramState);
-          } else if (data.name === "setIsValidResponse") {
-            setIsComplete(data.input.isValidResponse);
-            if (data.input.isValidResponse && onValidated) {
-              onValidated(updatedMessages, newProgramState);
-            }
+          switch (data.name) {
+            case "setProblem":
+              newProgramState = {
+                ...programState,
+                userProblem: data.input.problem,
+              };
+              setProgramState(newProgramState);
+              break;
+
+            case "setBasicSolution":
+              if (data.input.basicSolution) {
+                newProgramState = {
+                  ...newProgramState,
+                  basicSolution: data.input.basicSolution,
+                };
+                setProgramState(newProgramState);
+              }
+              break;
+
+            case "setAgreedToPact":
+              newProgramState = {
+                ...newProgramState,
+                agreedToPact: data.input.agreedToPact,
+              };
+              setProgramState(newProgramState);
+              break;
+
+            case "setBasicProblem":
+              newProgramState = {
+                ...newProgramState,
+                basicProblem: data.input.basicProblem,
+              };
+              setProgramState(newProgramState);
+              break;
+
+            case "setIsValidResponse":
+              setIsComplete(data.input.isValidResponse);
+              if (data.input.isValidResponse && onValidated) {
+                onValidated(updatedMessages, newProgramState);
+              }
+              break;
           }
         }
       }

@@ -34,7 +34,7 @@ Format your responses like:
   private readonly TOOLS: Tool[] = [
     {
       name: 'setProblem',
-      description: 'Set the users problem when at the start of the conversation.',
+      description: 'Set the problem as the user states it',
       input_schema: {
         type: 'object',
         properties: {
@@ -47,19 +47,47 @@ Format your responses like:
       },
     },
     {
-      name: 'setDeepSolution',
-      description: 'If the user has chosen an esoteric solution, set the deep solution',
+      name: 'setBasicProblem',
+      description: 'Set a really milquetoast way of rephrasing their problem',
       input_schema: {
         type: 'object',
         properties: {
-          deepSolution: {
+          basicProblem: {
             type: 'string',
-            description: 'The deep solution',
+            description: 'The lame problem description',
           },
         },
-        required: ['deepSolution'],
+        required: ['basicProblem'],
       },
     },
+    {
+      name: 'setBasicSolution',
+      description: 'Set a really stupid set of simple steps to answer the users stated problem',
+      input_schema: {
+        type: 'object',
+        properties: {
+          basicSolution: {
+            type: 'string',
+            description: 'The lame solution description',
+          },
+        },
+        required: ['basicSolution'],
+      },
+    },
+    {
+      name: 'setAgreedToPact',
+      description: 'Set whether the user agreed to the pact',
+      input_schema: {
+        type: 'object',
+        properties: {
+          agreedToPact: {
+            type: 'boolean',
+            description: 'Whether the user agreed to the pact',
+          },
+        },
+      },
+    },
+
     {
       name: 'setIsValidResponse',
       description: 'If the user response is valid, to the question being asked, set the isValidResponse to true',
@@ -85,7 +113,6 @@ Format your responses like:
 
   private initializeRoutes() {
     this.router.post(this.path, this.handleChatRequest.bind(this));
-    this.router.post(`${this.path}/upload`, this.upload.single('image'), this.handleImageUpload.bind(this));
     this.router.post(`${this.path}/isFulfilled`, this.handleTaskFulfillment.bind(this));
     this.router.post(`${this.path}/selectSolution`, this.handleSolutionSelection.bind(this));
   }
@@ -136,29 +163,6 @@ Format your responses like:
     } catch (error) {
       console.error('Solution selection error:', error);
       res.status(500).json({ error: 'Error selecting solution' });
-    }
-  }
-
-  private async handleImageUpload(req, res) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'No image file provided' });
-      }
-
-      const formData = new FormData();
-      formData.append('image', req.file.buffer.toString('base64'));
-
-      const response = await axios.post('https://api.imgbb.com/1/upload', formData, {
-        params: {
-          key: process.env.IMGBB_API_KEY,
-        },
-        headers: formData.getHeaders(),
-      });
-
-      res.json({ imageUrl: response.data.data.url });
-    } catch (error) {
-      console.error('Image upload error:', error);
-      res.status(500).json({ error: 'Error uploading image' });
     }
   }
 
