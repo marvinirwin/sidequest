@@ -6,6 +6,22 @@ export type Solution = {
     tags: string[];
 }
 
+const solution1: Solution = {
+    title: "Become more social by integrating your shadow",
+    body: `<p>Instructions</p>Some Youtube embed</p>`,
+    shortDescription: "A short description that allows the computer to pick this solution out of the others",
+    validatorQuestion: "Does this input represent a person integrating their shadow",
+    tags: ['body', 'other', 'self']
+};
+
+const solution2 = {
+    title: "Use Jungian conditioning",
+    body: "<div>First Slide</div><div>Second Slide</div>",
+    shortDescription: "A short description that allows the computer to pick this solution out of the others",
+    validatorQuestion: "Does this input represent girl dinnnner~~~~~ a person understanding themselves through a Jungian lense",
+    tags: ['body', 'other', 'self']
+}
+
 const solution3 Solution = {
     title: "The Labyrinth of Choices",
     body: `Induction
@@ -50,23 +66,79 @@ Slowly walk back up the steps, feeling your energy and awareness coming back to 
     validatorQuestion: `Does this input depict a person's exploration through the symbolic labyrinth and their personal reflections", a person integrating their shadow`
 }
 
-const solution1: Solution = {
-    title: "Become more social by integrating your shadow",
-    body: `<p>Instructions</p>Some Youtube embed</p>`,
-    shortDescription: "A short description that allows the computer to pick this solution out of the others",
-    validatorQuestion: "Does this input represent a person integrating their shadow",
+const solution4 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
     tags: ['body', 'other', 'self']
-};
+}
 
-const solution2 = {
-    title: "Use Jungian conditioning",
-    body: "<div>First Slide</div><div>Second Slide</div>",
-    shortDescription: "A short description that allows the computer to pick this solution out of the others",
-    validatorQuestion: "Does this input represent girl dinnnner~~~~~ a person understanding themselves through a Jungian lense",
+const solution5 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
+    tags: ['body', 'other', 'self']
+}
+
+const solution6 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
+    tags: ['body', 'other', 'self']
+}
+
+const solution7 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
+    tags: ['body', 'other', 'self']
+}
+
+const solution8 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
+    tags: ['body', 'other', 'self']
+}
+
+const solution9 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
+    tags: ['body', 'other', 'self']
+}
+
+const solution10 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
+    tags: ['body', 'other', 'self']
+}
+const solution11 = {
+    title:`okokok`,
+    body: `okokok`,
+    shortDescription: `okokok`,
+    validatorQuestion: `okokok`,
     tags: ['body', 'other', 'self']
 }
 
 export const solutions = [
     solution1,
-    solution2
+    solution2,
+    solution3,
+    solution4,
+    solution5,
+    solution6,
+    solution7,
+    solution8,
+    solution9,
+    solution10,
+    solution11,
 ]
