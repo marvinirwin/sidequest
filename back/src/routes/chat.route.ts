@@ -64,7 +64,7 @@ export class ChatRoute implements Routes {
       });
 
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4-vision-preview',
+        model: 'gpt-4o',
         messages: formattedMessages,
         max_tokens: 4096,
       });
@@ -79,6 +79,7 @@ export class ChatRoute implements Routes {
         isValid,
       });
     } catch (error) {
+        console.error(error);
       res.status(500).json({ error: 'Error processing chat request' });
     }
   }
