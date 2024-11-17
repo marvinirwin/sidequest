@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: nexus, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
   color: #ffffff;
   background-color: #000000;
-  background-image: url('/home/laurenyip/sidequest-1/front/public/images/Pact_Dark_Asleep.png');
+  background-image: url('./public/images/Pact_Dark_Asleep.png');
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -85,4 +85,33 @@ button:hover {
     color: #ffffff; /* Ensure text stays white */
   }
   
+}
+
+@font-face {
+  font-family: 'palatino';
+  src: 
+       url('/src/assets/fonts/palatino.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'zanie';
+  src: 
+       url('/src/assets/fonts/zanie.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'nexus';
+  src: 
+       url('/src/assets/fonts/nexus.ttf') format('ttf'),
+       url('/src/assets/fonts/nexus.eot') format('eot'),
+       url('/src/assets/fonts/nexus.html') format('html'),
+       url('/src/assets/fonts/nexus.woff') format('woff'),
+       url('/src/assets/fonts/nexus.woff2') format('woff2');
+      
+  font-weight: normal;
+  font-style: normal;
 }
