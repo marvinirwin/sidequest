@@ -1,102 +1,111 @@
 import "./App.css";
+import { BigPrompt, promptChainSteps, createValidationPhrase, getNextStep } from "./BigPrompt";
 import { PromptChain } from "./PromptChain";
+import { Solution } from "./Solution";
+import { Verification } from "./Verification";
 import { useState } from "react";
-
-interface Message {
-  role: string;
-  content: string;
-}
+import { solutions } from "./solutions/ananya.ts";
 
 function App() {
-  const [step, setStep] = useState(1);
-  const [userProblem, setUserProblem] = useState("");
-  const [wantsBetterAnswers, setWantsBetterAnswers] = useState(false);
-  const [problemCategory, setProblemCategory] = useState<"body" | "others" | "self" | null>(null);
+  const [currentStep, setCurrentStep] = useState('initialProblem');
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [selectedSolution, setSelectedSolution] = useState<number | null>(null);
+  const [programState, setProgramState] = useState({
+    userProblem: '',
+    problemType: '',
+    standardSteps: '',
+    esotericWisdom: ''
+  });
 
-  const handleInitialProblem = (messages: Message[]) => {
-    const lastUserMessage = messages.findLast(m => m.role === "user");
+  const handleValidated = async (messages: any[]) => {
+    const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+    
     if (lastUserMessage) {
-      setUserProblem(lastUserMessage.content);
-      setStep(2);
+      setResponses(prev => ({
+        ...prev,
+        [currentStep]: lastUserMessage.content
+      }));
+
+      if (currentStep === 'initialProblem') {
+        setProgramState(prev => ({
+          ...prev,
+          userProblem: lastUserMessage.content
+        }));
+      }
+
+      setCompletedSteps(prev => [...prev, currentStep]);
+
+      const nextStep = getNextStep(currentStep);
+      if (nextStep) {
+        setCurrentStep(nextStep);
+      } else {
+        // When flow is complete, ask Claude to select best solution
+        const response = await fetch("/api/chat/selectSolution", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userProblem: programState.userProblem,
+            solutions: solutions.map(s => s.shortDescription)
+          }),
+        });
+        const data = await response.json();
+        setSelectedSolution(data.selectedSolutionIndex);
+      }
     }
   };
 
-  const handleConfirmation = (messages: Message[]) => {
-    const lastUserMessage = messages.findLast(m => m.role === "user");
-    if (lastUserMessage?.content.toLowerCase().includes("yes")) {
-      setStep(3);
+  const getBackgroundClass = (step: string) => {
+    switch(step) {
+      case 'initialProblem':
+        return 'bg-blue-100';
+      case 'confirmProblem':
+        return 'bg-green-100';
+      case 'standardAdvice':
+        return 'bg-yellow-100';
+      case 'esotericPact':
+        return 'bg-purple-100';
+      case 'esotericSolution':
+        return 'bg-red-100';
+      default:
+        return 'bg-gray-100';
     }
   };
 
-  const handleWantsBetter = (messages: Message[]) => {
-    const lastUserMessage = messages.findLast(m => m.role === "user");
-    if (lastUserMessage?.content.toLowerCase().includes("yes")) {
-      setWantsBetterAnswers(true);
-      setStep(4);
-    }
+  const getPromptForStep = (step: string) => {
+    const stepConfig = promptChainSteps[step];
+    return stepConfig.prompt(programState);
   };
 
-  const handleCategory = (messages: Message[]) => {
-    const lastUserMessage = messages.findLast(m => m.role === "user");
-    const content = lastUserMessage?.content.toLowerCase();
-    if (content?.includes("body")) {
-      setProblemCategory("body");
-      setStep(5);
-    } else if (content?.includes("others") || content?.includes("people")) {
-      setProblemCategory("others");
-      setStep(5);
-    } else if (content?.includes("self")) {
-      setProblemCategory("self");
-      setStep(5);
-    }
-  };
+  if (selectedSolution !== null) {
+    return (
+      <div className="flex min-h-screen w-full">
+        <div className="w-1/2 border-r border-gray-200">
+          <Solution solution={solutions[selectedSolution]} />
+        </div>
+        <div className="w-1/2">
+          <Verification goal={solutions[selectedSolution].validatorQuestion} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      {step === 1 && (
+    <div className="min-h-screen flex items-center justify-center w-full">
+      <div className={`p-4 w-full ${getBackgroundClass(currentStep)}`}>
+        <pre>
+          {JSON.stringify(programState, null, 2)}
+        </pre>
         <PromptChain
-          initialPrompt="What problem are you facing? We'll ask some more questions and get context on your life to provide you with the most impactful solution possible."
-          validationPhrase="The user has provided a clear description of their problem"
-          onValidated={handleInitialProblem}
+          initialPrompt={getPromptForStep(currentStep)}
+          validationPhrase={createValidationPhrase(currentStep)}
+          onValidated={handleValidated}
+          showLatestOnly={true}
         />
-      )}
-      
-      {step === 2 && (
-        <PromptChain
-          initialPrompt={`Thanks for sharing. It seems like you're struggling with ${userProblem}. Does this feel correct?`}
-          validationPhrase="The user has confirmed or denied the problem summary"
-          onValidated={handleConfirmation}
-        />
-      )}
-
-      {step === 3 && (
-        <PromptChain
-          initialPrompt={`It looks like you are currently facing a ${userProblem} problem. Here are the first steps you can take: 1) Break the problem down into smaller parts 2) Address each part systematically 3) Seek support from others when needed. But you already know all of this. You want better answers, don't you?`}
-          validationPhrase="The user has indicated whether they want deeper answers"
-          onValidated={handleWantsBetter}
-        />
-      )}
-
-      {step === 4 && (
-        <PromptChain
-          initialPrompt={`But first, you have to make a pact. You must destroy the past self that faces this problem, and forge a new identity that is free of this encumbrance. If you do not fulfill the pact, you must face the true consequences of remaining the way you are.
-
-The all-seeing eye categorizes all problems as related to the body, the others and the self.
-
-Which type of solution interests you? (Reply with: body, others, or self)`}
-          validationPhrase="The user has selected a problem category"
-          onValidated={handleCategory}
-        />
-      )}
-
-      {step === 5 && (
-        <PromptChain
-          initialPrompt={`Based on your choice of ${problemCategory}, here is your esoteric solution...`}
-          validationPhrase="The user has received their esoteric solution"
-          onValidated={() => {}}
-        />
-      )}
-    </>
+      </div>
+    </div>
   );
 }
 
