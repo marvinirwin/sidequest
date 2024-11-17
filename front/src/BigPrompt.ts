@@ -77,7 +77,7 @@ Which dimension are you willing to explore?`,
     prompt: (state: ProgramState) =>
       `Drawing from the deep well of esoteric wisdom for the ${state.problemType} complex, here is your solution:
 ${state.esotericWisdom}`,
-    validation: "WIN",
+    validation: "",
   },
 };
 

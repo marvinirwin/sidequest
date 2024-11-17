@@ -13,7 +13,7 @@ import { solutions as ananyaSolutions } from "./solutions/ananya.ts";
 import { solutions as aminSolutions } from "./solutions/amin.ts";
 import { solutions as nateSolutions } from "./solutions/nate.ts";
 const solutions = [...ananyaSolutions, ...aminSolutions, ...nateSolutions];
-import { Debug, useDebugHotkey, useSetDebugContextKey } from "./DebugOverlay";
+import { Debug, useClearLocalStorageOn2, useDebugHotkey, useSetDebugContextKey } from "./DebugOverlay";
 export interface Message {
   role: string;
   content: string;
@@ -64,11 +64,12 @@ function App() {
   const initialPrompt = getPromptForStep(currentStep);
   const validationPhrase = createValidationPhrase(currentStep);
 
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useLocalStorageState<Message[]>("messages", [
     { role: 'system', content: `You are helping guide a conversation. Your goal is to achieve this outcome: ${validationPhrase}` },
     { role: 'assistant', content: initialPrompt }
   ]);
-
+  useSetDebugContextKey("Messages", messages);
+  useClearLocalStorageOn2();
 
   const handleValidated = async (messages: any[]) => {
     const lastUserMessage = messages.filter((m) => m.role === "user").pop();

@@ -23,6 +23,18 @@ export const useDebugHotkey = () => {
 
   return isVisible;
 };
+export const useClearLocalStorageOn2 = () => {
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "2") {
+        localStorage.clear();
+      }
+    };
+
+    window.addEventListener("keypress", handleKeyPress);
+    return () => window.removeEventListener("keypress", handleKeyPress);
+  }, []);
+};
 
 export interface DebugOverlayProps {
   data: Record<string, unknown>;
@@ -76,7 +88,9 @@ const JSONNode = ({ data, level = 0, expanded = false }: JSONNodeProps) => {
   if (Array.isArray(data)) {
     if (!data.length) return <span>[]</span>;
     return (
-      <span>
+      <span
+      
+      >
         <span
           onClick={() => setIsExpanded(!isExpanded)}
           style={{ cursor: "pointer", color: "#6495ED" }}
@@ -87,7 +101,7 @@ const JSONNode = ({ data, level = 0, expanded = false }: JSONNodeProps) => {
           <>
             {data.map((item, index) => (
               <div key={index}>
-                {indent} <JSONNode data={item} level={level + 1} />
+                {indent} <JSONNode data={item} level={level + 1} expanded={true}/>
                 {index < data.length - 1 && ","}
               </div>
             ))}
@@ -114,7 +128,7 @@ const JSONNode = ({ data, level = 0, expanded = false }: JSONNodeProps) => {
         {isExpanded && (
           <>
             {entries.map(([key, value], index) => (
-              <div key={key}>
+              <div key={key} className="text-left">
                 {indent} <span style={{ color: "#6495ED" }}>"{key}"</span>:{" "}
                 <JSONNode data={value} level={level + 1} expanded={true} />
                 {index < entries.length - 1 && ","}
