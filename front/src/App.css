@@ -2,6 +2,7 @@
   text-align: center;
   width: 100vw;
   height: 100vh;
+  font-family: palatino, serif;
 }
 
 .logo {
@@ -39,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+
+@font-face {
+  font-family: 'palatino';
+  src: 
+       url('/src/assets/fonts/palatino.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'zanie';
+  src: 
+       url('/src/assets/fonts/zanie.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+

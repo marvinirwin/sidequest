@@ -1,5 +1,7 @@
 import "./App.css";
 import { BigPrompt, promptChainSteps, createValidationPhrase, getNextStep } from "./BigPrompt";
+import "./index.css";
+
 import { PromptChain } from "./PromptChain";
 import { Solution } from "./Solution";
 import { Verification } from "./Verification";
@@ -95,9 +97,6 @@ function App() {
   return (
     <div className="min-h-screen flex items-center justify-center w-full">
       <div className={`p-4 w-full ${getBackgroundClass(currentStep)}`}>
-        <pre>
-          {JSON.stringify(programState, null, 2)}
-        </pre>
         <PromptChain
           initialPrompt={getPromptForStep(currentStep)}
           validationPhrase={createValidationPhrase(currentStep)}

@@ -152,16 +152,16 @@ export const PromptChain: React.FC<PromptChainProps> = ({ initialPrompt, validat
         ))}
         <div ref={messagesEndRef} />
       </div>
-
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex gap-2 items-center">
         <input
           ref={inputRef}
           type="text"
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
           placeholder="Type your message..."
-          disabled={isComplete || isLoading}
-          className="flex-1 p-4 text-lg rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 disabled:opacity-50"
+          disabled={isComplete}
+          autoFocus
+          className="flex-1 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
         />
         <button 
           type="submit" 
@@ -173,6 +173,9 @@ export const PromptChain: React.FC<PromptChainProps> = ({ initialPrompt, validat
           ) : (
             'Send'
           )}
+          
+      ✈️ {/* Paper airplane emoji */}
+      {/* Alternatively, use an SVG icon for better customization */}
         </button>
       </form>
 
