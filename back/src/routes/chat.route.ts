@@ -96,7 +96,7 @@ Format your responses like:
       }
 
       const response = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-5-haiku-20241022',
         system:
           this.SYSTEM_PROMPT +
           "\nSelect the most appropriate solution for the mortal's problem from the given options. Return only the index number (0-based) of the best matching solution.",
