@@ -139,52 +139,54 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
   }
 
   return (
-    <div className="flex h-screen">
-      <div className="w-1/2 p-8 overflow-y-auto border-r">
-        <h1 className="text-3xl font-bold mb-6">{solution.title}</h1>
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: solution.body }}
-        />
-      </div>
+    <div className="flex h-screen bg-cover bg-center" style={{ backgroundImage: 'url(/images/Pact_LIght_Awake.png)' }}>
+      <div className="w-full flex justify-center items-center h-full bg-black bg-opacity-50">
+        <div className="w-1/2 p-8 overflow-y-auto text-white">
+          <h1 className="text-3xl font-bold mb-6">{solution.title}</h1>
+          <div
+            className="prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: solution.body }}
+          />
+        </div>
 
-      <div className="w-1/2 p-8">
-        <h2 className="text-2xl font-semibold mb-6">Prove Your Completion</h2>
-        {validationMessage && (
-          <div className="p-4 mb-4 rounded bg-red-100">{validationMessage}</div>
-        )}
-        <div className="space-y-4">
-          <div className="p-4 border rounded-lg">
-            <textarea
-              className="w-full p-2 border rounded"
-              value={evidenceText}
-              onChange={(e) => setEvidenceText(e.target.value)}
-              placeholder="Describe how you completed this task..."
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="block w-full mt-4"
-            />
-            {evidence.images.length > 0 && (
-              <div className="flex gap-2 flex-wrap mt-4">
-                {evidence.images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={`data:${img.mediaType};base64,${img.data}`}
-                    alt={`Evidence ${i + 1}`}
-                    className="w-20 h-20 object-cover"
-                  />
-                ))}
-              </div>
-            )}
-            <button
-              onClick={handleSubmitEvidence}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-4"
-            >
-              Submit Evidence
-            </button>
+        <div className="w-1/2 p-8 bg-white text-black rounded-lg">
+          <h2 className="text-2xl font-semibold mb-6">Prove Your Completion</h2>
+          {validationMessage && (
+            <div className="p-4 mb-4 rounded bg-red-100">{validationMessage}</div>
+          )}
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg">
+              <textarea
+                className="w-full p-2 border rounded"
+                value={evidenceText}
+                onChange={(e) => setEvidenceText(e.target.value)}
+                placeholder="Describe how you completed this task..."
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="block w-full mt-4"
+              />
+              {evidence.images.length > 0 && (
+                <div className="flex gap-2 flex-wrap mt-4">
+                  {evidence.images.map((img, i) => (
+                    <img
+                      key={i}
+                      src={`data:${img.mediaType};base64,${img.data}`}
+                      alt={`Evidence ${i + 1}`}
+                      className="w-20 h-20 object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={handleSubmitEvidence}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-4"
+              >
+                Submit Evidence
+              </button>
+            </div>
           </div>
         </div>
       </div>
