@@ -149,7 +149,7 @@ export function SolutionScreen({ solutionIndex }: SolutionScreenProps) {
           />
         </div>
 
-        <div className="w-1/2 p-8 bg-white text-black rounded-lg">
+        <div className="w-1 p-8 bg-black text-black rounded-lg">
           <h2 className="text-2xl font-semibold mb-6">Prove Your Completion</h2>
           {validationMessage && (
             <div className="p-4 mb-4 rounded bg-red-100">{validationMessage}</div>
