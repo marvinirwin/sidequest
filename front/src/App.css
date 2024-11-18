@@ -9,15 +9,14 @@
 /* In App.css */
 .background-container {
   background-image: url('/images/Pact_Dark_Asleep.png');
-  background-size: contain; /* Keep the image within the container, no cropping */
-  background-position: center; /* Center the image */
+  background-size: 120% auto; /* Make the image 20% wider */
+  background-position: center; /* Keep the image centered */
   background-repeat: no-repeat;
-  min-height: 100vh; /* Full height of the viewport */
+  min-height: 80vh; /* Adjust the height to be slightly shorter (or tweak as needed) */
   width: 100%; /* Full width of the viewport */
   display: flex;
-  justify-content: center;
-  align-items: center;
 }
+
 
 
 .landing {
