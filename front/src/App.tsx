@@ -142,22 +142,6 @@ function App() {
       }
   };
 
-  const getBackgroundClass = (step: string) => {
-    switch (step) {
-      case "initialProblem":
-        return "bg-blue-100";
-      case "confirmProblem":
-        return "bg-green-100";
-      case "standardAdvice":
-        return "bg-yellow-100";
-      case "esotericPact":
-        return "bg-purple-100";
-      case "esotericSolution":
-        return "bg-red-100";
-      default:
-        return "bg-gray-100";
-    }
-  };
 
 
   if (selectedSolution !== null) {
@@ -171,10 +155,10 @@ function App() {
   }
 
   return (
-    <>
+    <> <div className="background-container">
       <Debug isVisible={isDebugVisible} />
       <div className="min-h-screen flex items-center justify-center w-full">
-        <div className={`p-4 w-full ${getBackgroundClass(currentStep)}`}>
+        <div className={`p-4 w-full`}>
           <PromptChain
             setProgramState={setProgramState}
             programState={programState}
@@ -186,6 +170,7 @@ function App() {
             messages={messages}
           />
         </div>
+      </div>
       </div>
     </>
   );

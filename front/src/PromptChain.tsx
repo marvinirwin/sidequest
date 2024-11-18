@@ -139,18 +139,18 @@ export const PromptChain: React.FC<PromptChainProps> = ({
   if (showLatestOnly) {
     const latestMessage = displayMessages[0];
     return (
-      <div className="w-full max-w-2xl mx-auto rounded-lg shadow-md">
+      <div className="w-full max-w-2xl mx-auto rounded-lg shadow-md bg-black">
         <div
-          className="bg-black text-white p-6 rounded-t-lg text-left"
+          className="p-6 rounded-t-lg text-left"
           dangerouslySetInnerHTML={{ __html: latestMessage?.content }}
         />
 
-        <div className="p-4 bg-black rounded-b-lg">
+        <div className="p-4 rounded-b-lg">
           <form
             onSubmit={handleSubmit}
             className="flex items-center w-full max-w-2xl mx-auto"
           >
-            <div className="flex items-center w-full rounded-full border border-gray-600 bg-black overflow-hidden shadow-sm">
+            <div className="flex items-center w-full rounded-full bg-black overflow-hidden shadow-sm">
               {/* Input Field */}
               <input
                 ref={inputRef}
@@ -159,7 +159,7 @@ export const PromptChain: React.FC<PromptChainProps> = ({
                 onChange={(e) => setUserInput(e.target.value)}
                 placeholder="Type your message..."
                 disabled={isLoading}
-                className="flex-1 px-4 py-3 text-lg text-gray-300 focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 bg-black"
+                className="flex-1 px-4 py-3 text-lg text-gray-300 focus:outline-none  disabled:opacity-50 bg-black"
               />
 
               {/* Send Button */}
@@ -195,7 +195,7 @@ export const PromptChain: React.FC<PromptChainProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto p-4">
+    <div className="flex flex-col h-screen max-w-2xl mx-auto p-4 bg-black">
       <div className="flex-1 overflow-y-auto space-y-4 mb-4">
         {displayMessages.map((message, index) => (
           <div
@@ -205,11 +205,7 @@ export const PromptChain: React.FC<PromptChainProps> = ({
             }`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-4 text-left ${
-                message.role === "assistant"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-emerald-500 text-white"
-              }`}
+              className={`max-w-[80%] rounded-lg p-4 text-left ${"bg-black text-white"}`}
               dangerouslySetInnerHTML={{ __html: message.content }}
             />
           </div>
@@ -225,12 +221,12 @@ export const PromptChain: React.FC<PromptChainProps> = ({
           placeholder="Type your message..."
           disabled={isComplete}
           autoFocus
-          className="flex-1 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-black text-white"
+          className="flex-1 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 bg-black text-white"
         />
         <button
           type="submit"
           disabled={isComplete || isLoading}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500 relative"
+          className="text-white px-6 py-2 rounded-lg disabled:opacity-50 relative"
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mx-auto" />

@@ -5,6 +5,19 @@
   font-family: nexus, sans-serif;
 }
 
+/* In App.css */
+.background-container {
+  background-image: url('/images/Pact_Dark_Asleep.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh; /* Full height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .landing {
   background-image: url("/images/NEW_PACT_BACKGROUND_LANDING_PAGE.png");
   background-size: 90%; /* Ensures the image covers the entire container */
